@@ -234,17 +234,17 @@ static bool usbd_get_descriptor(uint8_t busid, uint16_t type_index, uint8_t **da
             }
             break;
         case USB_DESCRIPTOR_TYPE_DEVICE_QUALIFIER:
-#ifndef CONFIG_USB_HS
-            return false;
-#else
-            desc = g_usbd_core[busid].descriptors->device_quality_descriptor_callback(g_usbd_core[busid].speed);
-            if (desc == NULL) {
-                found = false;
-                break;
+            if (g_usbdev_bus[busid].bustype == USB_DEVICE_SPEED_FS) {
+                return false;
+            } else {
+                desc = g_usbd_core[busid].descriptors->device_quality_descriptor_callback(g_usbd_core[busid].speed);
+                if (desc == NULL) {
+                    found = false;
+                    break;
+                }
+                desc_len = desc[0];
             }
-            desc_len = desc[0];
             break;
-#endif
         case USB_DESCRIPTOR_TYPE_OTHER_SPEED:
             desc = g_usbd_core[busid].descriptors->other_speed_descriptor_callback(g_usbd_core[busid].speed);
             if (desc == NULL) {
@@ -315,13 +315,16 @@ static bool usbd_get_descriptor(uint8_t busid, uint16_t type_index, uint8_t **da
      * Invalid types of descriptors,
      * see USB Spec. Revision 2.0, 9.4.3 Get Descriptor
      */
-    else if ((type == USB_DESCRIPTOR_TYPE_INTERFACE) || (type == USB_DESCRIPTOR_TYPE_ENDPOINT) ||
-#ifndef CONFIG_USB_HS
-             (type > USB_DESCRIPTOR_TYPE_ENDPOINT)) {
-#else
-             (type > USB_DESCRIPTOR_TYPE_OTHER_SPEED)) {
-#endif
+    else if ((type == USB_DESCRIPTOR_TYPE_INTERFACE) || (type == USB_DESCRIPTOR_TYPE_ENDPOINT)) {
         return false;
+    }
+
+    if (g_usbdev_bus[busid].bustype == USB_DEVICE_SPEED_HS) {
+        if (type > USB_DESCRIPTOR_TYPE_OTHER_SPEED)
+            return false;
+    } else {
+        if (type > USB_DESCRIPTOR_TYPE_ENDPOINT)
+            return false;
     }
 
     p = (uint8_t *)g_usbd_core[busid].descriptors;
@@ -1397,7 +1400,7 @@ int usbd_send_remote_wakeup(uint8_t busid)
     }
 }
 
-int usbd_initialize(uint8_t busid, uintptr_t reg_base, void (*event_handler)(uint8_t busid, uint8_t event))
+int usbd_initialize(uint8_t busid, uint8_t bustype, uintptr_t reg_base, void (*event_handler)(uint8_t busid, uint8_t event))
 {
     int ret;
     struct usbd_bus *bus;
@@ -1410,6 +1413,7 @@ int usbd_initialize(uint8_t busid, uintptr_t reg_base, void (*event_handler)(uin
 
     bus = &g_usbdev_bus[busid];
     bus->reg_base = reg_base;
+    bus->bustype = bustype;
 
     g_usbd_core[busid].event_handler = event_handler;
     ret = usb_dc_init(busid);

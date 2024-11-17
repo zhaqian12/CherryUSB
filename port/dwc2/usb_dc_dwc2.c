@@ -96,9 +96,9 @@
 #define USB_OTG_GLB      ((DWC2_GlobalTypeDef *)(USBD_BASE))
 #define USB_OTG_DEV      ((DWC2_DeviceTypeDef *)(USBD_BASE + USB_OTG_DEVICE_BASE))
 #define USB_OTG_PCGCCTL  *(__IO uint32_t *)((uint32_t)USBD_BASE + USB_OTG_PCGCCTL_BASE)
-#define USB_OTG_INEP(i)  ((DWC2_INEndpointTypeDef *)(USBD_BASE + USB_OTG_IN_ENDPOINT_BASE + ((i)*USB_OTG_EP_REG_SIZE)))
-#define USB_OTG_OUTEP(i) ((DWC2_OUTEndpointTypeDef *)(USBD_BASE + USB_OTG_OUT_ENDPOINT_BASE + ((i)*USB_OTG_EP_REG_SIZE)))
-#define USB_OTG_FIFO(i)  *(__IO uint32_t *)(USBD_BASE + USB_OTG_FIFO_BASE + ((i)*USB_OTG_FIFO_SIZE))
+#define USB_OTG_INEP(i)  ((DWC2_INEndpointTypeDef *)(USBD_BASE + USB_OTG_IN_ENDPOINT_BASE + ((i) * USB_OTG_EP_REG_SIZE)))
+#define USB_OTG_OUTEP(i) ((DWC2_OUTEndpointTypeDef *)(USBD_BASE + USB_OTG_OUT_ENDPOINT_BASE + ((i) * USB_OTG_EP_REG_SIZE)))
+#define USB_OTG_FIFO(i)  *(__IO uint32_t *)(USBD_BASE + USB_OTG_FIFO_BASE + ((i) * USB_OTG_FIFO_SIZE))
 
 extern uint32_t SystemCoreClock;
 
@@ -146,22 +146,24 @@ static inline int dwc2_reset(uint8_t busid)
 static inline int dwc2_core_init(uint8_t busid)
 {
     int ret;
-#if defined(CONFIG_USB_HS)
-    /* Init The ULPI Interface */
-    USB_OTG_GLB->GUSBCFG &= ~(USB_OTG_GUSBCFG_TSDPS | USB_OTG_GUSBCFG_ULPIFSLS | USB_OTG_GUSBCFG_PHYSEL);
 
-    /* Select vbus source */
-    USB_OTG_GLB->GUSBCFG &= ~(USB_OTG_GUSBCFG_ULPIEVBUSD | USB_OTG_GUSBCFG_ULPIEVBUSI);
+    if (g_usbdev_bus[busid].bustype == USB_DEVICE_SPEED_HS) {
+        /* Init The ULPI Interface */
+        USB_OTG_GLB->GUSBCFG &= ~(USB_OTG_GUSBCFG_TSDPS | USB_OTG_GUSBCFG_ULPIFSLS | USB_OTG_GUSBCFG_PHYSEL);
 
-    /* Reset after a PHY select */
-    ret = dwc2_reset(busid);
-#else
-    /* Select FS Embedded PHY */
-    USB_OTG_GLB->GUSBCFG |= USB_OTG_GUSBCFG_PHYSEL;
+        /* Select vbus source */
+        USB_OTG_GLB->GUSBCFG &= ~(USB_OTG_GUSBCFG_ULPIEVBUSD | USB_OTG_GUSBCFG_ULPIEVBUSI);
 
-    /* Reset after a PHY select */
-    ret = dwc2_reset(busid);
-#endif
+        /* Reset after a PHY select */
+        ret = dwc2_reset(busid);
+    } else {
+        /* Select FS Embedded PHY */
+        USB_OTG_GLB->GUSBCFG |= USB_OTG_GUSBCFG_PHYSEL;
+
+        /* Reset after a PHY select */
+        ret = dwc2_reset(busid);
+    }
+
     return ret;
 }
 
@@ -547,7 +549,7 @@ int usb_dc_init(uint8_t busid)
     USB_OTG_GLB->GAHBCFG &= ~USB_OTG_GAHBCFG_GINT;
 
     /* This is vendor register */
-    USB_OTG_GLB->GCCFG = usbd_get_dwc2_gccfg_conf(USBD_BASE);
+    USB_OTG_GLB->GCCFG = usbd_get_dwc2_gccfg_conf(g_usbdev_bus[busid].reg_base, g_usbdev_bus[busid].bustype);
 
     ret = dwc2_core_init(busid);
 
@@ -563,15 +565,15 @@ int usb_dc_init(uint8_t busid)
 
     /* Device speed configuration */
     USB_OTG_DEV->DCFG &= ~USB_OTG_DCFG_DSPD;
-#if defined(CONFIG_USB_HS)
-    USB_OTG_DEV->DCFG |= USB_OTG_SPEED_HIGH;
-#else
-    if (hsphy_type == 0) {
-        USB_OTG_DEV->DCFG |= USB_OTG_SPEED_FULL;
+    if (g_usbdev_bus[busid].bustype == USB_DEVICE_SPEED_HS) {
+        USB_OTG_DEV->DCFG |= USB_OTG_SPEED_HIGH;
     } else {
-        USB_OTG_DEV->DCFG |= USB_OTG_SPEED_HIGH_IN_FULL;
+        if (hsphy_type == 0) {
+            USB_OTG_DEV->DCFG |= USB_OTG_SPEED_FULL;
+        } else {
+            USB_OTG_DEV->DCFG |= USB_OTG_SPEED_HIGH_IN_FULL;
+        }
     }
-#endif
 
     /* Clear all pending Device Interrupts */
     USB_OTG_DEV->DIEPMSK = 0U;

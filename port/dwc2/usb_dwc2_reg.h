@@ -1718,7 +1718,7 @@ typedef struct
 
 void usb_dc_low_level_init(uint8_t busid);
 void usb_dc_low_level_deinit(uint8_t busid);
-uint32_t usbd_get_dwc2_gccfg_conf(uint32_t reg_base);
+uint32_t usbd_get_dwc2_gccfg_conf(uint32_t reg_base, uint32_t bustype);
 uint32_t usbh_get_dwc2_gccfg_conf(uint32_t reg_base);
 void usbd_dwc2_delay_ms(uint8_t ms);
 #endif
