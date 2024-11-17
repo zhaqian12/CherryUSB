@@ -112,12 +112,20 @@ struct dwc2_ep_state {
     uint32_t actual_xfer_len;
 };
 
+USB_NOCACHE_RAM_SECTION struct dwc2_fifo_size {
+    uint16_t rxall_fifo_size;
+    uint16_t tx_fifo_size[9];
+} g_dwc2_fifo_size[CONFIG_USBDEV_MAX_BUS];
+
 /* Driver state */
 USB_NOCACHE_RAM_SECTION struct dwc2_udc {
     __attribute__((aligned(32))) struct usb_setup_packet setup;
     struct dwc2_ep_state in_ep[CONFIG_USBDEV_EP_NUM];  /*!< IN endpoint parameters*/
     struct dwc2_ep_state out_ep[CONFIG_USBDEV_EP_NUM]; /*!< OUT endpoint parameters */
 } g_dwc2_udc[CONFIG_USBDEV_MAX_BUS];
+
+#define USB_DWC2_RX_FIFO_SIZE    (g_dwc2_fifo_size[busid].rxall_fifo_size)
+#define USB_DWC2_TX_FIFO_SIZE(i) (g_dwc2_fifo_size[busid].tx_fifo_size[i])
 
 static inline int dwc2_reset(uint8_t busid)
 {
@@ -502,6 +510,12 @@ int usb_dc_init(uint8_t busid)
 
     usb_dc_low_level_init(busid);
 
+    g_dwc2_fifo_size[busid].rxall_fifo_size = usbd_get_dwc2_rxfifo_conf(busid);
+
+    for (uint8_t i = 0; i < CONFIG_USBDEV_EP_NUM; i++) {
+        g_dwc2_fifo_size[busid].rx_fifo_size[i] = usbd_get_dwc2_txfifo_conf(busid, i);
+    }
+
     /*
         Full-Speed PHY Interface Type (FSPhyType)
         2'b00: Full-speed interface not supported
@@ -610,38 +624,14 @@ int usb_dc_init(uint8_t busid)
     USB_OTG_GLB->GINTMSK |= USB_OTG_GINTMSK_SOFM;
 #endif
 
-    USB_OTG_GLB->GRXFSIZ = (CONFIG_USB_DWC2_RXALL_FIFO_SIZE);
+    USB_OTG_GLB->GRXFSIZ = USB_DWC2_RX_FIFO_SIZE;
 
-    dwc2_set_txfifo(busid, 0, CONFIG_USB_DWC2_TX0_FIFO_SIZE);
-    dwc2_set_txfifo(busid, 1, CONFIG_USB_DWC2_TX1_FIFO_SIZE);
-    dwc2_set_txfifo(busid, 2, CONFIG_USB_DWC2_TX2_FIFO_SIZE);
-    dwc2_set_txfifo(busid, 3, CONFIG_USB_DWC2_TX3_FIFO_SIZE);
+    fifo_num = USB_DWC2_RX_FIFO_SIZE;
 
-    fifo_num = CONFIG_USB_DWC2_RXALL_FIFO_SIZE;
-    fifo_num += CONFIG_USB_DWC2_TX0_FIFO_SIZE;
-    fifo_num += CONFIG_USB_DWC2_TX1_FIFO_SIZE;
-    fifo_num += CONFIG_USB_DWC2_TX2_FIFO_SIZE;
-    fifo_num += CONFIG_USB_DWC2_TX3_FIFO_SIZE;
-#if CONFIG_USBDEV_EP_NUM > 4
-    dwc2_set_txfifo(busid, 4, CONFIG_USB_DWC2_TX4_FIFO_SIZE);
-    fifo_num += CONFIG_USB_DWC2_TX4_FIFO_SIZE;
-#endif
-#if CONFIG_USBDEV_EP_NUM > 5
-    dwc2_set_txfifo(busid, 5, CONFIG_USB_DWC2_TX5_FIFO_SIZE);
-    fifo_num += CONFIG_USB_DWC2_TX5_FIFO_SIZE;
-#endif
-#if CONFIG_USBDEV_EP_NUM > 6
-    dwc2_set_txfifo(busid, 6, CONFIG_USB_DWC2_TX6_FIFO_SIZE);
-    fifo_num += CONFIG_USB_DWC2_TX6_FIFO_SIZE;
-#endif
-#if CONFIG_USBDEV_EP_NUM > 7
-    dwc2_set_txfifo(busid, 7, CONFIG_USB_DWC2_TX7_FIFO_SIZE);
-    fifo_num += CONFIG_USB_DWC2_TX7_FIFO_SIZE;
-#endif
-#if CONFIG_USBDEV_EP_NUM > 8
-    dwc2_set_txfifo(busid, 8, CONFIG_USB_DWC2_TX8_FIFO_SIZE);
-    fifo_num += CONFIG_USB_DWC2_TX8_FIFO_SIZE;
-#endif
+    for (uint8_t i = 0; i < CONFIG_USBDEV_EP_NUM; i++) {
+        dwc2_set_txfifo(busid, i, USB_DWC2_TX_FIFO_SIZE(i));
+        fifo_num += USB_DWC2_TX_FIFO_SIZE(i);
+    }
 
     if (fifo_num > (USB_OTG_GLB->GHWCFG3 >> 16)) {
         USB_LOG_ERR("Your fifo config is overflow, please check\r\n");
