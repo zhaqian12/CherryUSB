@@ -6,6 +6,8 @@
 #ifndef __USB_DWC2_REG_H__
 #define __USB_DWC2_REG_H__
 
+#include "usbd_core.h"
+
 #define     __IO    volatile             /*!< Defines 'read / write' permissions */
 /**
   * @brief USB_OTG_Core_Registers

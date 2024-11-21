@@ -76,7 +76,7 @@ struct usb_descriptor {
     const struct usb_bos_descriptor *bos_descriptor;
 };
 
-enum usbd_event_type {
+enum usbd_device_speed_type {
     USB_DEVICE_SPEED_FS,
     USB_DEVICE_SPEED_HS
 };
