@@ -150,7 +150,7 @@ uint32_t usbd_get_dwc2_gccfg_conf(uint32_t reg_base, uint32_t bustype)
     USB_OTG_GLB->GOTGCTL |= USB_OTG_GOTGCTL_BVALOVAL;
 #endif
 
-    if (g_usbdev_bus[busid].bustype == USB_DEVICE_SPEED_HS) {
+    if (bustype == USB_DEVICE_SPEED_HS) {
 #if defined(STM32F722xx) || defined(STM32F723xx) || defined(STM32F730xx) || defined(STM32F732xx) || defined(STM32F733xx)
         USB_OTG_GLB->GCCFG = (1 << 23);
         usb_hsphy_init(25000000U);
