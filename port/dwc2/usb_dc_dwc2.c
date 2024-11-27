@@ -607,11 +607,11 @@ int usb_dc_init(uint8_t busid)
                            USB_OTG_GINTMSK_USBSUSPM | USB_OTG_GINTMSK_WUIM;
 
     if (((USB_OTG_GLB->GHWCFG2 & (0x3U << 3)) >> 3) != 2) {
-        g_dwc2_dma_enabled[busid] = FALSE;
+        g_dwc2_dma_enabled[busid] = false;
         USB_LOG_INFO("This dwc2 version does not support dma mode.\r\n");
         USB_OTG_GLB->GINTMSK |= USB_OTG_GINTMSK_RXFLVLM;
     } else {
-        g_dwc2_dma_enabled[busid] = TRUE;
+        g_dwc2_dma_enabled[busid] = true;
         USB_LOG_INFO("This dwc2 version support dma mode.\r\n");
         USB_OTG_DEV->DCFG &= ~USB_OTG_DCFG_DESCDMA;
         USB_OTG_GLB->GAHBCFG &= ~USB_OTG_GAHBCFG_HBSTLEN;
