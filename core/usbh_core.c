@@ -105,7 +105,10 @@ static const struct usbh_class_driver *usbh_find_class_driver(uint8_t class, uin
         if (index->match_flags & USB_CLASS_MATCH_VID_PID && index->id_table) {
             /* scan id table */
             uint32_t i;
-            for (i = 0; index->id_table[i][0] && index->id_table[i][0] != vid && index->id_table[i][1] != pid; i++) {
+            for (i = 0; index->id_table[i][0]; i++) {
+                if (index->id_table[i][0] == vid && index->id_table[i][1] == pid) {
+                    break;
+                }
             }
             /* do not match, continue next */
             if (!index->id_table[i][0]) {
@@ -889,7 +892,6 @@ void *usbh_find_class_instance(const char *devname)
 struct usbh_hubport *usbh_find_hubport(uint8_t busid, uint8_t hub_index, uint8_t hub_port)
 {
     struct usbh_hub *hub;
-    struct usbh_hub *hub_next;
     struct usbh_bus *bus;
     struct usbh_hubport *hport;
     size_t flags;

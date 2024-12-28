@@ -154,7 +154,9 @@ uint32_t usbd_get_dwc2_gccfg_conf(uint32_t reg_base, uint32_t bustype)
 #if defined(STM32F722xx) || defined(STM32F723xx) || defined(STM32F730xx) || defined(STM32F732xx) || defined(STM32F733xx)
         USB_OTG_GLB->GCCFG = (1 << 23);
         usb_hsphy_init(25000000U);
-        return (1 << 23); /* Enable USB HS PHY USBx->GCCFG |= USB_OTG_GCCFG_PHYHSEN;*/
+        return (1 << 23);    /* Enable USB HS PHY USBx->GCCFG |= USB_OTG_GCCFG_PHYHSEN;*/
+#elif __has_include("stm32h7rsxx.h")
+        return (1 << 21);
 #else
         return 0;
 #endif
@@ -181,6 +183,8 @@ uint32_t usbh_get_dwc2_gccfg_conf(uint32_t reg_base)
     USB_OTG_GLB->GCCFG = (1 << 23);
     usb_hsphy_init(25000000U);
     return (1 << 23); /* Enable USB HS PHY USBx->GCCFG |= USB_OTG_GCCFG_PHYHSEN;*/
+#elif __has_include("stm32h7rsxx.h")
+    return (1 << 21);
 #else
     return 0;
 #endif
