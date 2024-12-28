@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>USB 知识点拓展 &mdash; CherryUSB 1.4.1 documentation</title>
+  <title>USB 知识点拓展 &mdash; CherryUSB 1.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=350a9c04"></script>
+      <script src="../_static/documentation_options.js?v=02f2166e"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -101,6 +101,8 @@
 <li class="toctree-l1"><a class="reference internal" href="../demo/usbh_net.html">usbh_net</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../demo/usbh_bluetooth.html">usbh_bluetooth</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../demo/usbh_wifi.html">usbh_wifi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo/usbd_vendor.html">vendor device 驱动编写</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo/usbh_vendor.html">vendor host 驱动编写</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">USBIP 介绍</span></p>
 <ul>
@@ -156,7 +158,7 @@
            <div itemprop="articleBody">
              
   <section id="usb">
-<h1>USB 知识点拓展<a class="headerlink" href="#usb" title="Link to this heading"></a></h1>
+<span id="usb-ext"></span><h1>USB 知识点拓展<a class="headerlink" href="#usb" title="Link to this heading"></a></h1>
 <section id="id1">
 <h2>什么是分包<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
 <p>由于 USB 协议中规定了每个包的最大长度，所以当我们发送的数据长度超过了最大包长度时，就需要分包发送，这就是分包。比如 ep mps 为 64，数据长度为 129，则 USB 会按照 64 + 64 + 1 的形式传输。
@@ -201,7 +203,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, sakumisu.</p>
+    <p>&#169; Copyright 2022 ~ 2024, sakumisu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

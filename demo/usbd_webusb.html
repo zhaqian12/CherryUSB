@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>usbd_webusb &mdash; CherryUSB 1.4.1 documentation</title>
+  <title>usbd_webusb &mdash; CherryUSB 1.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
 
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=350a9c04"></script>
+      <script src="../_static/documentation_options.js?v=02f2166e"></script>
       <script src="../_static/doctools.js?v=9a2dae69"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/js/theme.js"></script>
@@ -95,6 +95,8 @@
 <li class="toctree-l1"><a class="reference internal" href="usbh_net.html">usbh_net</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usbh_bluetooth.html">usbh_bluetooth</a></li>
 <li class="toctree-l1"><a class="reference internal" href="usbh_wifi.html">usbh_wifi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usbd_vendor.html">vendor device 驱动编写</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usbh_vendor.html">vendor host 驱动编写</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">USBIP 介绍</span></p>
 <ul>
@@ -151,6 +153,26 @@
              
   <section id="usbd-webusb">
 <h1>usbd_webusb<a class="headerlink" href="#usbd-webusb" title="Link to this heading"></a></h1>
+<p>本 demo 主要演示 webusb 功能，webusb 主要用于弹出网页并对 USB 设备进行访问。示例使用 webusb_hid_template.c。</p>
+<ul class="simple">
+<li><p>在注册描述符时注册 BOS, MSOSV2, WEBUSB 描述符即可。</p></li>
+</ul>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">usbd_bos_desc_register</span><span class="p">(</span><span class="n">busid</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">bos_desc</span><span class="p">);</span>
+<span class="n">usbd_msosv2_desc_register</span><span class="p">(</span><span class="n">busid</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">msosv2_desc</span><span class="p">);</span>
+<span class="n">usbd_webusb_desc_register</span><span class="p">(</span><span class="n">busid</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">webusb_url_desc</span><span class="p">);</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><p>增加一个接口描述符用于 webusb</p></li>
+</ul>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span>
+</pre></div>
+</div>
+<p>USB_INTERFACE_DESCRIPTOR_INIT(USBD_WEBUSB_INTF_NUM, 0x00, 0x00, 0xff, 0x00, 0x00, 0x00)</p>
+<ul class="simple">
+<li><p>其余使用 hid 描述符，不再赘述</p></li>
+<li><p>枚举完成后，电脑右下角会弹出网页信息，点击即可打开网页</p></li>
+</ul>
 </section>
 
 
@@ -164,7 +186,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, sakumisu.</p>
+    <p>&#169; Copyright 2022 ~ 2024, sakumisu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

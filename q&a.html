@@ -6,14 +6,14 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Q &amp; A &mdash; CherryUSB 1.4.1 documentation</title>
+  <title>Q &amp; A &mdash; CherryUSB 1.4.2 documentation</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=350a9c04"></script>
+      <script src="_static/documentation_options.js?v=02f2166e"></script>
       <script src="_static/doctools.js?v=9a2dae69"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="_static/js/theme.js"></script>
@@ -108,6 +108,8 @@
 <li class="toctree-l1"><a class="reference internal" href="demo/usbh_net.html">usbh_net</a></li>
 <li class="toctree-l1"><a class="reference internal" href="demo/usbh_bluetooth.html">usbh_bluetooth</a></li>
 <li class="toctree-l1"><a class="reference internal" href="demo/usbh_wifi.html">usbh_wifi</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo/usbd_vendor.html">vendor device 驱动编写</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo/usbh_vendor.html">vendor host 驱动编写</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">USBIP 介绍</span></p>
 <ul>
@@ -201,7 +203,17 @@
 </section>
 <section id="gd-ip">
 <h2>GD IP 问题<a class="headerlink" href="#gd-ip" title="Link to this heading"></a></h2>
-<p>GD IP 采用 DWC2，但是读取的硬件参数都是 0（我也不懂为什么不给人知道），因此需要用户自行知道硬件信息，并修改代码下面 check 的内容，然后删除 while1。</p>
+<p>GD IP 采用 DWC2，但是读取的硬件参数都是 0（我也不懂为什么不给人知道），因此需要用户自行知道硬件信息，以下列举 GD32F4 的信息：</p>
+<p>CONFIG_USBDEV_EP_NUM pa11/pa12 引脚必须为 4，PB14/PB15 引脚必须为 6，并删除 usb_dc_dwc2.c 中 while(1){}</p>
+<ul class="simple">
+<li><p>当 CONFIG_USBDEV_EP_NUM 为4 时，fifo_num 不得大于 320 字</p></li>
+<li><p>当 CONFIG_USBDEV_EP_NUM 为6 时，fifo_num 不得大于 1280 字</p></li>
+</ul>
+<p>其次 GD 复位以后无法使用 EPDIS 功能关闭端点，需要用户删除 reset 中断中的以下代码：</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="n">USB_OTG_INEP</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">DIEPCTL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">USB_OTG_DIEPCTL_EPDIS</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">USB_OTG_DIEPCTL_SNAK</span><span class="p">);</span>
+<span class="n">USB_OTG_OUTEP</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">-&gt;</span><span class="n">DOEPCTL</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">USB_OTG_DOEPCTL_EPDIS</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">USB_OTG_DOEPCTL_SNAK</span><span class="p">);</span>
+</pre></div>
+</div>
 </section>
 <section id="dwc2-has-less-endpoints-than-config-please-check">
 <h2>dwc2 has less endpoints than config, please check<a class="headerlink" href="#dwc2-has-less-endpoints-than-config-please-check" title="Link to this heading"></a></h2>
@@ -241,7 +253,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2024, sakumisu.</p>
+    <p>&#169; Copyright 2022 ~ 2024, sakumisu.</p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
