@@ -145,7 +145,7 @@ void usb_dc_low_level_deinit(uint8_t busid)
     rt_hw_interrupt_mask(174);
 }
 #endif
-uint32_t usbd_get_dwc2_gccfg_conf(uint32_t reg_base)
+uint32_t usbd_get_dwc2_gccfg_conf(uint32_t reg_base, uint32_t bustype)
 {
     return 0;
 }

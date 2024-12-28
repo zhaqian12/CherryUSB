@@ -17,13 +17,13 @@
  *
 */
 
-uint32_t usbd_get_dwc2_gccfg_conf(uint32_t reg_base)
+uint32_t usbd_get_dwc2_gccfg_conf(uint32_t reg_base, uint32_t bustype)
 {
-#ifdef CONFIG_USB_HS
-    return 0;
-#else
-    return ((1 << 16) | (1 << 18) | (1 << 19) | (1 << 21));
-#endif
+    if (g_usbdev_bus[busid].bustype == USB_DEVICE_SPEED_HS) {
+        return 0;
+    } else {
+        return ((1 << 16) | (1 << 18) | (1 << 19) | (1 << 21));
+    }
 }
 
 uint32_t usbh_get_dwc2_gccfg_conf(uint32_t reg_base)

@@ -76,8 +76,14 @@ struct usb_descriptor {
     const struct usb_bos_descriptor *bos_descriptor;
 };
 
+enum usbd_device_speed_type {
+    USB_DEVICE_SPEED_FS,
+    USB_DEVICE_SPEED_HS
+};
+
 struct usbd_bus {
     uint8_t busid;
+    uint8_t bustype;
     uintptr_t reg_base;
 };
 
@@ -106,7 +112,7 @@ bool usb_device_is_configured(uint8_t busid);
 bool usb_device_is_suspend(uint8_t busid);
 int usbd_send_remote_wakeup(uint8_t busid);
 
-int usbd_initialize(uint8_t busid, uintptr_t reg_base, void (*event_handler)(uint8_t busid, uint8_t event));
+int usbd_initialize(uint8_t busid, uint8_t bustype, uintptr_t reg_base, void (*event_handler)(uint8_t busid, uint8_t event));
 int usbd_deinitialize(uint8_t busid);
 
 #ifdef __cplusplus

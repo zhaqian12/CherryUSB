@@ -10,7 +10,7 @@
 
 #define USB_OTG_GLB ((DWC2_GlobalTypeDef *)(reg_base))
 
-uint32_t usbd_get_dwc2_gccfg_conf(uint32_t reg_base)
+uint32_t usbd_get_dwc2_gccfg_conf(uint32_t reg_base, uint32_t bustype)
 {
 
     USB_OTG_GLB->GOTGCTL |= USB_OTG_GOTGCTL_BVALOEN;
